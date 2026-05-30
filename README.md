@@ -1,236 +1,47 @@
-# API de Lançamento Automático em Planilhas
+# Finance Sync API
 
-## Sobre o Projeto
+## Descricao
+Uma API REST desenvolvida em Java com Spring Boot para automatizar processos de fluxo de caixa. O sistema atua como um middleware de integracao, recebendo dados de transacoes financeiras via requisicoes HTTP e realizando o lancamento automatico e em tempo real em planilhas de controle gerencial do Google Sheets.
 
-A **API de Lançamento Automático em Planilhas** foi desenvolvida para automatizar o processo de registro de transações financeiras em planilhas do Google Sheets em tempo real.
+Este projeto resolve problemas de gargalos operacionais e erros de digitacao em fluxos corporativos com alto volume de transacoes, eliminando o trabalho manual de fechamento de caixa.
 
-O sistema elimina tarefas manuais repetitivas, permitindo que aplicações enviem dados financeiros através de uma API REST, enquanto o backend valida as regras de negócio e registra automaticamente as informações em uma planilha inteligente na nuvem.
-
-Este projeto demonstra conhecimentos em:
-
-* Java
-* Spring Boot
-* APIs REST
-* Integração com APIs externas
-* Google Sheets API
-* OAuth2 / Service Account
-* Validação de regras de negócio
-* Arquitetura backend
-* Automação de processos
-
----
-
-# Funcionalidades
-
-* Cadastro de transações financeiras via API REST
-* Integração automática com Google Sheets
-* Inserção de dados em tempo real na planilha
-* Validação de regras de negócio
-* Estrutura preparada para escalabilidade
-* Tratamento de erros e respostas padronizadas
-
----
-
-# Tecnologias Utilizadas
-
-* Java 21
-* Spring Boot
-* Spring Web
-* Spring Validation
-* Google Sheets API
-* Maven
+## Tecnologias Utilizadas
+* Java 17
+* Spring Boot (Web)
 * Lombok
-* Jackson
+* Google Sheets API v4
+* Google Auth Library (Service Accounts)
+* Maven
 
----
+## Arquitetura
+O projeto segue o padrao de arquitetura em camadas:
+* Controller: Gerenciamento dos endpoints REST e recepcao de payloads JSON.
+* Service: Regras de negocio, autenticacao OAuth2/Service Account e integracao com APIs externas.
+* DTO: Padronizacao do contrato de dados recebidos.
 
-# Arquitetura da Aplicação
+## Como Executar
 
-O fluxo da aplicação funciona da seguinte forma:
+### Pre-requisitos
+1. Uma conta no Google Cloud Platform.
+2. Ativar a Google Sheets API e criar uma Service Account.
+3. Fazer o download da chave JSON da Service Account.
 
-1. O cliente envia uma requisição para:
+### Configuracao
+1. Clone este repositorio.
+2. Coloque o arquivo de credenciais do Google na pasta `src/main/resources/` com o nome `google-credentials.json`.
+3. No arquivo `src/main/resources/application.properties`, adicione o ID da sua planilha:
+   `google.sheets.id=SEU_ID_DA_PLANILHA`
+4. De permissao de "Editor" na sua planilha para o e-mail da sua Service Account.
+5. Execute o projeto na sua IDE ou via terminal com `mvn spring-boot:run`.
 
-```http
-POST /api/v1/transactions
-```
-
-2. A API recebe os dados da transação:
-
-```json
-{
-  "type": "INCOME",
-  "amount": 1500.00,
-  "category": "Salário",
-  "description": "Pagamento mensal",
-  "date": "2026-05-29"
-}
-```
-
-3. O sistema valida as regras de negócio:
-
-* Receitas não podem possuir valor negativo
-* Campos obrigatórios devem ser preenchidos
-* Datas inválidas são rejeitadas
-
-4. Após a validação:
-
-* Os dados são formatados
-* Uma nova linha é adicionada automaticamente no Google Sheets
-
----
-
-# Estrutura do Projeto
-
-```bash
-src
- ┣ main
- ┃ ┣ java
- ┃ ┃ ┗ com.seuprojeto.transactions
- ┃ ┃ ┣ controller
- ┃ ┃ ┣ service
- ┃ ┃ ┣ dto
- ┃ ┃ ┣ validation
- ┃ ┃ ┣ integration
- ┃ ┃ ┗ config
- ┃ ┗ resources
- ┃   ┣ application.yml
- ┃   ┗ credentials.json
-```
-
----
-
-# Endpoint Principal
-
-## Criar Transação
-
-### Requisição
-
-```http
-POST /api/v1/transactions
-```
-
-### Body
+### Exemplo de Requisicao (POST)
+Endpoint: `http://localhost:8080/api/v1/transactions`
 
 ```json
 {
-  "type": "EXPENSE",
-  "amount": 250.75,
-  "category": "Alimentação",
-  "description": "Mercado",
-  "date": "2026-05-29"
+  "data": "30/05/2026",
+  "tipo": "DESPESA",
+  "categoria": "Licenca de Software",
+  "descricao": "Pagamento de Ferramentas Cloud",
+  "valor": 150.50
 }
-```
-
-### Resposta de Sucesso
-
-```json
-{
-  "message": "Transaction successfully registered in Google Sheets"
-}
-```
-
----
-
-# Integração com Google Sheets
-
-A aplicação utiliza a Google Sheets API para adicionar linhas automaticamente em uma planilha configurada.
-
-## Configuração
-
-### 1. Criar projeto no Google Cloud
-
-* Acesse o Google Cloud Console
-* Crie um novo projeto
-* Ative a Google Sheets API
-
-### 2. Criar credenciais
-
-Você pode utilizar:
-
-* OAuth2
-  ou
-* Service Account
-
-### 3. Baixar o arquivo de credenciais
-
-Renomeie para:
-
-```bash
-credentials.json
-```
-
-E coloque em:
-
-```bash
-src/main/resources/
-```
-
-### 4. Compartilhar a planilha
-
-Compartilhe a planilha com o e-mail da Service Account.
-
----
-
-# Variáveis de Ambiente
-
-```env
-GOOGLE_SHEET_ID=your_sheet_id
-APPLICATION_NAME=transactions-api
-```
-
----
-
-# Executando o Projeto
-
-## Clonar o repositório
-
-```bash
-git clone https://github.com/seuusuario/transactions-sheets-api.git
-```
-
-## Entrar na pasta
-
-```bash
-cd transactions-sheets-api
-```
-
-## Executar a aplicação
-
-```bash
-./mvnw spring-boot:run
-```
-
----
-
-# Melhorias Futuras
-
-* Autenticação JWT
-* Banco de dados PostgreSQL
-* Dockerização
-* Deploy em AWS
-* Dashboard financeiro
-* Webhooks
-* Filas assíncronas com RabbitMQ
-* Exportação em PDF
-
----
-
-# Objetivo do Projeto
-
-Este projeto foi criado com foco em:
-
-* Demonstrar integração entre sistemas
-* Automatizar tarefas repetitivas
-* Simular cenários reais corporativos
-* Fortalecer conhecimentos em backend Java
-* Construir portfólio profissional
-
----
-
-# Autor
-
-Isaac Almeida
-
-* Estudante de Análise e Desenvolvimento de Sistemas
-* Desenvolvedor Backend Java
-* Focado em automação, APIs REST e integração de sistemas
